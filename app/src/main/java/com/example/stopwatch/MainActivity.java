@@ -18,8 +18,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
-    private ImageButton btplay,btstop;
-
     private  boolean isResume;
     Handler handler;
     private int seconds = 0;
@@ -31,41 +29,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView = findViewById(R.id.chronometer);
-        btplay = findViewById(R.id.bt_start);
-        btstop = findViewById(R.id.bt_stop);
-
         hideSystemBars();
         handler = new Handler();
-        btplay.setOnClickListener(new View.OnClickListener() {
+        textView.setOnClickListener(new DoubleClickListener(){
             @Override
-            public void onClick(View v) {
-                 if(!isResume){
-                     handler.postDelayed(runnable,0);
-                     isResume = true;
-                     btstop.setVisibility(View.GONE);
-                     btplay.setImageDrawable(getDrawable(R.drawable.ic_pause));
-                 }else{
-                     handler.removeCallbacks(runnable);
-                     isResume = false;
-                     btstop.setVisibility(View.VISIBLE);
-                     btplay.setImageDrawable(getDrawable(R.drawable.ic_play));
-                 }
+            public void onDoubleClick() {
+                seconds = 0;
+                sec = 0; min = 0; hrs = 0;
+                isResume = false;
+                textView.setText("00:00:00");
             }
-        });
 
-        btstop.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onSingleClick() {
                 if(!isResume){
-                    btplay.setImageDrawable(getDrawable(R.drawable.ic_play));
-                    seconds = 0;
-                    sec = 0; min = 0; hrs = 0;
-                    textView.setText("00:00:00");
+                    handler.postDelayed(runnable,0);
+                    isResume = true;
+                }else{
+                    handler.removeCallbacks(runnable);
+                    isResume = false;
                 }
             }
         });
     }
-
     public Runnable runnable = new Runnable(){
         @Override
         public void run() {
@@ -77,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 seconds++;
             }
             handler.postDelayed(this,1000);
-
         }
     };
     private void hideSystemBars() {
@@ -93,4 +78,44 @@ public class MainActivity extends AppCompatActivity {
         // Hide both the status bar and the navigation bar
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
     }
+}
+
+abstract class DoubleClickListener implements View.OnClickListener {
+    private static final long DEFAULT_QUALIFICATION_SPAN = 200;
+    private boolean isSingleEvent;
+    private long doubleClickQualificationSpanInMillis;
+    private long timestampLastClick;
+    private Handler handler;
+    private Runnable runnabl;
+
+    public DoubleClickListener() {
+        doubleClickQualificationSpanInMillis = DEFAULT_QUALIFICATION_SPAN;
+        timestampLastClick = 0;
+        handler = new Handler();
+        runnabl = new Runnable() {
+            @Override
+            public void run() {
+                if (isSingleEvent) {
+                    onSingleClick();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onClick(View v) {
+        if((SystemClock.elapsedRealtime() - timestampLastClick) < doubleClickQualificationSpanInMillis) {
+            isSingleEvent = false;
+            handler.removeCallbacks(runnabl);
+            onDoubleClick();
+            return;
+        }
+
+        isSingleEvent = true;
+        handler.postDelayed(runnabl, DEFAULT_QUALIFICATION_SPAN);
+        timestampLastClick = SystemClock.elapsedRealtime();
+    }
+
+    public abstract void onDoubleClick();
+    public abstract void onSingleClick();
 }
