@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         textView = findViewById(R.id.chronometer);
         hideSystemBars();
         handler = new Handler();
@@ -55,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
     public Runnable runnable = new Runnable(){
         @Override
         public void run() {
-            hrs = seconds/3600;
-            min = seconds/60;
             sec = seconds%60;
+            min = (seconds/60)%60;
+            hrs = (seconds/3600)%24;
             textView.setText(String.format(Locale.getDefault(),"%02d:%02d:%02d",hrs,min,sec));
             if(isResume){
                 seconds++;
