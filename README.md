@@ -2,7 +2,7 @@
 
 Hello and welcome to the StopWatch Application.
 
-A preety simple application with few twerks keep the minimalistic desgin.
+A preety simple application with few twerks to keep the idea of minimalistic desgin and help people acheive better study time.
 1. Hidden upper panels.
 2. Hidden phone ui buttons
 3. Screen set to landscape only.
